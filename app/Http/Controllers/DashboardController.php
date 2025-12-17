@@ -12,15 +12,15 @@ class DashboardController extends Controller
         $data = [
             'temperature' => rand(25, 34),
             'humidity' => rand(60, 90),
-            'gas' => rand(100, 600),     // MQ2 ppm (dummy)
+            'soil' => rand(20, 90),      // Soil moisture (dummy)
             'rain' => rand(0, 1),        // 0 = kering, 1 = ada air
         ];
 
         // Logika notifikasi
         $alerts = [];
 
-        if ($data['gas'] > 300) {
-            $alerts[] = "Terdeteksi asap di area jemuran!";
+        if ($data['soil'] > 70) {
+            $alerts[] = "Kelembapan tanah tinggi: pakaian masih lembab!";
         }
 
         if ($data['humidity'] > 80 && $data['temperature'] < 28) {

@@ -8,7 +8,7 @@ Route::get('/sensor', function () {
     return response()->json([
         'temperature' => rand(20, 35),
         'humidity' => rand(30, 90),
-        'gas' => rand(0, 1000),
+        'soil' => rand(20, 90),
         'rain' => rand(0, 1),
     ]);
 });
@@ -16,12 +16,11 @@ Route::get('/sensor', function () {
 // Dummy chart data endpoint
 Route::get('/chart', function () {
     return response()->json([
-        ['time' => '10:00', 'temperature' => 25],
-        ['time' => '11:00', 'temperature' => 27],
-        ['time' => '12:00', 'temperature' => 30],
-        ['time' => '13:00', 'temperature' => 32],
-        ['time' => '14:00', 'temperature' => 31],
-        ['time' => '15:00', 'temperature' => 28],
+        'labels' => ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30"],
+        'temperature' => [28, 29, 30, 29, 28, 27],
+        'humidity' => [60, 62, 65, 63, 61, 60],
+        'soil' => [45, 50, 55, 52, 48, 46],
+        'rain' => [0, 0, 0, 1, 0, 0]
     ]);
 });
 

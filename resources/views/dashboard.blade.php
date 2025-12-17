@@ -43,9 +43,9 @@
         <x-adminlte-info-box title="Kelembapan" text="{{ $data['humidity'] }}%" icon="fas fa-tint" theme="blue"/>
     </div>
 
-    {{-- Gas MQ2 --}}
+    {{-- Soil Moisture --}}
     <div class="col-md-3">
-        <x-adminlte-info-box title="Asap (MQ2)" text="{{ $data['gas'] }} ppm" icon="fas fa-smog" theme="red"/>
+        <x-adminlte-info-box title="Kelembapan Baju" text="{{ $data['soil'] }}%" icon="fas fa-tshirt" theme="green"/>
     </div>
 
     {{-- Rain Sensor --}}
@@ -78,17 +78,10 @@
     </div>
     <div class="card-body">
 
-        <form action="/servo/toggle" method="POST" style="display:inline-block;">
+        <form id="servoForm" action="/servo/toggle" method="POST" style="display:inline-block;">
             @csrf
-            <button class="btn btn-primary">
-                <i class="fas fa-cog"></i> Aktifkan Servo (Jemuran Teduh)
-            </button>
-        </form>
-
-        <form action="/buzzer/off" method="POST" style="display:inline-block; margin-left:10px;">
-            @csrf
-            <button class="btn btn-danger">
-                <i class="fas fa-bell-slash"></i> Matikan Buzzer
+            <button id="servoBtn" type="button" class="btn btn-primary">
+                <i class="fas fa-cog"></i> Panaskan Jemuran
             </button>
         </form>
 
@@ -119,14 +112,14 @@
     </div>
 </div>
 
-{{-- GRAFIK GAS --}}
+{{-- GRAFIK SOIL --}}
 <div class="card mt-4">
     <div class="card-header">
-        <h4>Grafik Gas MQ2 (Setiap 30 Menit)</h4>
+        <h4>Grafik Kelembapan Tanah (Setiap 30 Menit)</h4>
     </div>
     <div class="card-body">
             <div class="chart-container">
-                <canvas id="chartGas"></canvas>
+                <canvas id="chartSoil"></canvas>
             </div>
     </div>
 </div>
@@ -152,7 +145,7 @@ const labels = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30"];
 
 const temperature = [28, 29, 30, 29, 28, 27];
 const humidity = [60, 62, 65, 63, 61, 60];
-const gas = [200, 210, 250, 180, 190, 220];
+const soil = [45, 50, 55, 52, 48, 46];
 const rain = [0, 0, 0, 1, 0, 0]; // 1 = basah, 0 = kering
 
 // ------- GRAFIK SUHU -------
@@ -213,21 +206,21 @@ new Chart(document.getElementById('chartHumidity'), {
     }
 });
 
-// ------- GRAFIK GAS -------
-new Chart(document.getElementById('chartGas'), {
+// ------- GRAFIK SOIL -------
+new Chart(document.getElementById('chartSoil'), {
     type: 'line',
     data: {
         labels: labels,
         datasets: [{
-            label: 'Asap (ppm)',
-            data: gas,
+            label: 'Kelembapan Tanah (%)',
+            data: soil,
             borderWidth: 2,
             tension: 0.25,
             fill: false,
-            borderColor: 'rgba(153,102,255,1)',
-            backgroundColor: 'rgba(153,102,255,0.12)',
+            borderColor: 'rgba(139,69,19,1)',
+            backgroundColor: 'rgba(139,69,19,0.12)',
             pointRadius: 3,
-            pointBackgroundColor: 'rgba(153,102,255,1)'
+            pointBackgroundColor: 'rgba(139,69,19,1)'
         }]
     },
     options: {
@@ -270,6 +263,25 @@ new Chart(document.getElementById('chartRain'), {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
         }
     }
+});
+
+// ------- SERVO TOGGLE -------
+let servoActive = false;
+document.getElementById('servoBtn').addEventListener('click', function() {
+    servoActive = !servoActive;
+    this.innerHTML = servoActive ? '<i class="fas fa-cog"></i> Teduhkan Jemuran' : '<i class="fas fa-cog"></i> Panaskan Jemuran';
+    
+    // Submit via AJAX instead of form submission
+    fetch('/servo/toggle', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .catch(error => console.error('Error:', error));
 });
 </script>
 
